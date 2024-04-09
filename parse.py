@@ -28,7 +28,7 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 # Plot the graph
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
-    plt.plot(group['days_before_close'], group['cumulative_projects'], label=f"Shuttle {shuttle_id}")
+    plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}")
 plt.gca().invert_xaxis()
 plt.xlabel('Days Before Close')
 plt.ylabel('Number of Projects')
