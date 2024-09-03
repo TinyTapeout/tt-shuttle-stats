@@ -9,7 +9,7 @@ shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
-    print(f"shuttle {shuttle_id}, deadline {deadline}");
+#    print(f"shuttle {shuttle_id}, deadline {deadline}");
     shuttle_deadlines[shuttle_id] = pd.Timestamp(deadline)
 
 # Convert first_submission_time to datetime objects
@@ -29,6 +29,7 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 # Plot the graph
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
+    print(f"shuttle {shuttle_id} : {group['cumulative_projects'].values[-1]}")
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}")
 plt.gca().invert_xaxis()
 plt.xlabel('Days Before Close')
