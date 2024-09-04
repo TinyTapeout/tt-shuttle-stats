@@ -30,8 +30,15 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
     print(f"shuttle {shuttle_id} : {group['cumulative_projects'].values[-1]}")
-    plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}")
+    linestyle = 'dotted'
+    alpha = 0.35
+    if shuttle_id == 8:
+        linestyle = 'solid'
+        alpha = 1
+    plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}", alpha=alpha) #linestyle=linestyle)
 plt.gca().invert_xaxis()
+#plt.xscale('log')
+#plt.yscale('log')
 plt.xlabel('Days Before Close')
 plt.ylabel('Number of Projects')
 plt.title('Tiny Tapeout shuttles')
