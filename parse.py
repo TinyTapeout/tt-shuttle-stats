@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 df = pd.read_csv('data.csv')
 
 # Add deadlines for each shuttle
-shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06"}
+shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10"}
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
@@ -32,7 +32,7 @@ for shuttle_id, group in df.groupby('shuttle_id'):
     print(f"shuttle {shuttle_id} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_id == 8:
+    if shuttle_id == 9:
         linestyle = 'solid'
         alpha = 1
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}", alpha=alpha) #linestyle=linestyle)
