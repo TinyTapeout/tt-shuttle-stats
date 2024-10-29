@@ -29,6 +29,8 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 # Plot the graph
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
+    if shuttle_id == 1000:
+        continue
     print(f"shuttle {shuttle_id} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
     alpha = 0.35
