@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 df = pd.read_csv('data.csv')
 
 # Add deadlines for each shuttle
-shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10"}
+shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 10: "2025-03-10"}
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
