@@ -11,7 +11,7 @@ with open("shuttles.json", "r") as file:
     id_to_name = {item["id"]: item["name"] for item in shuttle_info}
 
 # Add deadlines for each shuttle
-shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 400: "2025-09-15", 1002: "2025-09-01"}
+shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 10: "2025-03-10", 1002: "2025-09-01", 400: "2025-09-15"}
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
