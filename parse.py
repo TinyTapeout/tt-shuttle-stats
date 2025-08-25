@@ -1,11 +1,17 @@
 import pandas as pd
+import json
 import matplotlib.pyplot as plt
 
 # Read data from CSV file
 df = pd.read_csv('data.csv')
 
+# Read shuttle info
+with open("shuttles.json", "r") as file:
+    shuttle_info = json.load(file)
+    id_to_name = {item["id"]: item["name"] for item in shuttle_info}
+
 # Add deadlines for each shuttle
-shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10"}
+shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 400: "2025-09-15", 1002: "2025-09-01"}
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
@@ -29,15 +35,16 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 # Plot the graph
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
-    if shuttle_id == 1000:
+    shuttle_name = id_to_name[shuttle_id]
+    if shuttle_name in ["Tiny Tapeout 10", "Tiny Tapeout CAD 25a", "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a"] :
         continue
-    print(f"shuttle {shuttle_id} : {group['cumulative_projects'].values[-1]}")
+    print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_id == 9:
+    if shuttle_name == "Tiny Tapeout IHP 25b":
         linestyle = 'solid'
         alpha = 1
-    plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_id}", alpha=alpha) #linestyle=linestyle)
+    plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_name}", alpha=alpha) #linestyle=linestyle)
 plt.gca().invert_xaxis()
 #plt.xscale('log')
 #plt.yscale('log')

@@ -1,5 +1,5 @@
 #!/bin/bash
-csv_file=~/Downloads/supabase_aouvjyxihpudhbmbuepk_shuttle\ progress\ graph\ data.csv
+csv_file=~/Downloads/Supabase\ Snippet\ Projects\ Information.csv 
 cp "$csv_file" data.csv
 rm "$csv_file"
 . venv/bin/activate
