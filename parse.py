@@ -41,7 +41,7 @@ for shuttle_id, group in df.groupby('shuttle_id'):
     print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_name == "Tiny Tapeout IHP 25b":
+    if shuttle_name == "Tiny Tapeout SKY 25a":
         linestyle = 'solid'
         alpha = 1
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_name}", alpha=alpha) #linestyle=linestyle)
