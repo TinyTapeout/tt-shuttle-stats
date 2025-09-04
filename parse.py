@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 import json
 import matplotlib.pyplot as plt
 
@@ -48,9 +49,10 @@ for shuttle_id, group in df.groupby('shuttle_id'):
 plt.gca().invert_xaxis()
 #plt.xscale('log')
 #plt.yscale('log')
-plt.xlabel('Days Before Close')
+update_date = datetime.now().strftime("%d %B")
+plt.xlabel('Days Before Tapeout')
 plt.ylabel('Number of Projects')
-plt.title('Tiny Tapeout shuttles')
+plt.title(f'Tiny Tapeout shuttle utilisation - updated {update_date}')
 plt.legend()
 plt.grid(True)
 plt.savefig("tt_shuttles.png")
