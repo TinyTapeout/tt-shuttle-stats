@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 # Read data from CSV file
 df = pd.read_csv('data.csv')
 
+log_x = True
+
 # Read shuttle info
 with open("shuttles.json", "r") as file:
     shuttle_info = json.load(file)
@@ -47,12 +49,14 @@ for shuttle_id, group in df.groupby('shuttle_id'):
         alpha = 1
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_name}", alpha=alpha) #linestyle=linestyle)
 plt.gca().invert_xaxis()
-#plt.xscale('log')
-#plt.yscale('log')
+
+if logx:
+    plt.xscale('log')
+
 update_date = datetime.now().strftime("%d %B")
 plt.xlabel('Days Before Tapeout')
 plt.ylabel('Number of Projects')
 plt.title(f'Tiny Tapeout shuttle utilisation - updated {update_date}')
-plt.legend()
+plt.legend(loc="upper left")
 plt.grid(True)
 plt.savefig("tt_shuttles.png")
