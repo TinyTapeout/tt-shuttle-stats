@@ -50,7 +50,7 @@ for shuttle_id, group in df.groupby('shuttle_id'):
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_name}", alpha=alpha) #linestyle=linestyle)
 plt.gca().invert_xaxis()
 
-if logx:
+if log_x:
     plt.xscale('log')
 
 update_date = datetime.now().strftime("%d %B")
