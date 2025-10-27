@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Read data from CSV file
 df = pd.read_csv('data.csv')
 
-log_x = True
+log_x = False
 
 # Read shuttle info
 with open("shuttles.json", "r") as file:
@@ -14,7 +14,7 @@ with open("shuttles.json", "r") as file:
     id_to_name = {item["id"]: item["name"] for item in shuttle_info}
 
 # Add deadlines for each shuttle
-shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 10: "2025-03-10", 1002: "2025-09-01", 400: "2025-09-15"}
+shuttle_deadlines = {4: "2023-09-08", 5: "2023-11-04", 6: "2024-04-19", 7: "2024-06-01", 8: "2024-09-06", 9: "2024-11-10", 10: "2025-03-10", 1002: "2025-09-01", 400: "2025-09-15", 401: "2025-11-10" }
 
 # Convert deadlines to datetime objects
 for shuttle_id, deadline in shuttle_deadlines.items():
@@ -39,12 +39,12 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
     shuttle_name = id_to_name[shuttle_id]
-    if shuttle_name in ["Tiny Tapeout 10", "Tiny Tapeout CAD 25a", "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a"] :
+    if shuttle_name in ["Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a", "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a"] :
         continue
     print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_name == "Tiny Tapeout SKY 25a":
+    if shuttle_name == "Tiny Tapeout SKY 25b":
         linestyle = 'solid'
         alpha = 1
     plt.plot(group['days_before_close'].values, group['cumulative_projects'].values, label=f"Shuttle {shuttle_name}", alpha=alpha) #linestyle=linestyle)
