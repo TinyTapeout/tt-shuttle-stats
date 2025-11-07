@@ -39,7 +39,7 @@ df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
     shuttle_name = id_to_name[shuttle_id]
-    if shuttle_name in ["Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a", "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a"] :
+    if shuttle_name in ["Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a", "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a", "Tiny Tapeout GF 0p2"] :
         continue
     print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
     linestyle = 'dotted'
