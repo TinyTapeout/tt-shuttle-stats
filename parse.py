@@ -2,7 +2,7 @@ import requests
 import argparse
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description="Plot Tiny Tapeout shuttle submission statistics")
@@ -12,6 +12,13 @@ parser.add_argument('--show', action='store_true', help="Show the plot with matp
 args = parser.parse_args()
 
 log_x = args.log
+
+# Don't show these ones
+skip_shuttles = [
+    "Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a",
+    "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3",
+    "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a", "Tiny Tapeout GF 0p2"
+]
 
 # Fetch JSON data from the API
 url = "https://app.tinytapeout.com/api/shuttles/submission-stats"
@@ -28,6 +35,27 @@ if args.dump:
 shuttles = data['shuttles']
 id_to_name = {item["id"]: item["name"] for item in shuttles}
 shuttle_deadlines = {item["id"]: pd.to_datetime(item["deadline"]) for item in shuttles}
+
+# Current UTC time
+now_utc = pd.Timestamp(datetime.now(timezone.utc))
+
+# Filter deadlines that are in the future
+future_shuttles = {sid: dl for sid, dl in shuttle_deadlines.items() if dl >= now_utc}
+
+if not future_shuttles:
+    raise ValueError("No future shuttles found in the data")
+
+# Find the shuttle with deadline closest to today
+closest_shuttle_id = min(future_shuttles, key=lambda sid: abs(future_shuttles[sid] - now_utc))
+closest_deadline = future_shuttles[closest_shuttle_id]
+
+print(f"Closest shuttle: {id_to_name[closest_shuttle_id]}, Deadline: {closest_deadline}")
+
+# Automatically set log mode if within 7 days
+days_to_deadline = (closest_deadline - now_utc).total_seconds() / (24*3600)
+log_x = days_to_deadline <= 7
+
+print(f"Automatic log mode: {log_x} (days to closest deadline: {days_to_deadline:.2f})")
 
 # Load submissions into a DataFrame
 df = pd.DataFrame(data['submissions'])
@@ -55,22 +83,16 @@ xlabel = 'Hours Before Tapeout' if log_x else 'Days Before Tapeout'
 
 # Plot the graph
 plt.figure(figsize=(10, 6))
-skip_names = [
-    "Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a",
-    "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3",
-    "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a", "Tiny Tapeout GF 0p2"
-]
-
 for shuttle_id, group in df.groupby('shuttle_id'):
     shuttle_name = id_to_name.get(shuttle_id, f"Shuttle {shuttle_id}")
-    if shuttle_name in skip_names:
+    if shuttle_name in skip_shuttles:
         continue
 
     print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
 
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_name == "Tiny Tapeout SKY 25b":
+    if shuttle_name == closest_shuttle_id:
         linestyle = 'solid'
         alpha = 1
 
