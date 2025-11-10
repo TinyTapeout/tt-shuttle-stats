@@ -92,7 +92,7 @@ for shuttle_id, group in df.groupby('shuttle_id'):
 
     linestyle = 'dotted'
     alpha = 0.35
-    if shuttle_name == closest_shuttle_id:
+    if shuttle_id == closest_shuttle_id:
         linestyle = 'solid'
         alpha = 1
 
