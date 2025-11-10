@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description="Plot Tiny Tapeout shuttle submission statistics")
 parser.add_argument('--log', action='store_true', help="Use log scale (hours) on x-axis")
 parser.add_argument('--dump', action='store_true', help="Dump the json data locally")
+parser.add_argument('--show', action='store_true', help="Show the plot with matplotlib")
 args = parser.parse_args()
 
 log_x = args.log
@@ -91,4 +92,6 @@ plt.title(f'Tiny Tapeout shuttle utilisation - updated {update_date}')
 plt.legend(loc="upper left")
 plt.grid(True)
 plt.savefig("tt_shuttles.png")
-plt.show()
+
+if args.show:
+    plt.show()
