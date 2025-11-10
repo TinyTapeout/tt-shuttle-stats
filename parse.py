@@ -9,9 +9,8 @@ parser = argparse.ArgumentParser(description="Plot Tiny Tapeout shuttle submissi
 parser.add_argument('--log', action='store_true', help="Use log scale (hours) on x-axis")
 parser.add_argument('--dump', action='store_true', help="Dump the json data locally")
 parser.add_argument('--show', action='store_true', help="Show the plot with matplotlib")
+parser.add_argument('--shuttle-id', type=int, help="Force shuttle id")
 args = parser.parse_args()
-
-log_x = args.log
 
 # Don't show these ones
 skip_shuttles = [
@@ -49,13 +48,15 @@ if not future_shuttles:
 closest_shuttle_id = min(future_shuttles, key=lambda sid: abs(future_shuttles[sid] - now_utc))
 closest_deadline = future_shuttles[closest_shuttle_id]
 
-print(f"Closest shuttle: {id_to_name[closest_shuttle_id]}, Deadline: {closest_deadline}")
+if args.shuttle_id:
+    closest_shuttle_id = args.shuttle_id
+print(f"Highlighting shuttle: {id_to_name[closest_shuttle_id]}, Deadline: {closest_deadline}")
 
 # Automatically set log mode if within 7 days
 days_to_deadline = (closest_deadline - now_utc).total_seconds() / (24*3600)
-log_x = days_to_deadline <= 7
+log_x = (days_to_deadline <= 7) or args.log
 
-print(f"Automatic log mode: {log_x} (days to closest deadline: {days_to_deadline:.2f})")
+print(f"Log mode: {log_x} (days to closest deadline: {days_to_deadline:.2f})")
 
 # Load submissions into a DataFrame
 df = pd.DataFrame(data['submissions'])
@@ -88,7 +89,7 @@ for shuttle_id, group in df.groupby('shuttle_id'):
     if shuttle_name in skip_shuttles:
         continue
 
-    print(f"shuttle {shuttle_name} : {group['cumulative_projects'].values[-1]}")
+    print(f"shuttle {shuttle_name} [{shuttle_id}] : {group['cumulative_projects'].values[-1]}")
 
     linestyle = 'dotted'
     alpha = 0.35
