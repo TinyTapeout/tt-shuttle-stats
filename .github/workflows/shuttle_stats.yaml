@@ -1,4 +1,4 @@
-name: Daily Parse Image
+name: Daily Shuttle Stats Image
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:      # let you trigger manually too
 
 jobs:
-  run-parse:
+  run-shuttle-stats:
     runs-on: ubuntu-latest
 
     permissions:
@@ -27,8 +27,8 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run parse.py
-        run: python parse.py
+      - name: Run shuttle_stats.py
+        run: python shuttle_stats.py
 
       # adjust path to whatever image your script outputs
       - name: Upload image artifact

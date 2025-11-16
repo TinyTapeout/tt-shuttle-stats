@@ -2,18 +2,4 @@
 
 ![stats](tt_shuttles.png)
 
-# SQL
-
-    select
-      id as project_id,
-      top_module,
-      shuttle_id,
-      first_submission_time
-    from
-      public.projects
-    where
-      status = 'submitted'
-    order by
-      shuttle_id desc,
-      first_submission_time desc;
-
+Parses data from https://app.tinytapeout.com/api/shuttles/submission-stats to show utilisation over time of the most recent Tiny Tapeout shuttles.

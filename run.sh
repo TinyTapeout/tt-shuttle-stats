@@ -1,3 +1,3 @@
 #!/bin/bash
 . venv/bin/activate
-python3 parse.py
+python3 shuttle_stats.py
