@@ -1,0 +1,46 @@
+name: Daily Parse Image
+
+on:
+  schedule:
+    - cron: "0 12 * * *"  # every day at 12:00 UTC
+  workflow_dispatch:      # let you trigger manually too
+
+jobs:
+  run-parse:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: write   # needed to upload artifacts
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run parse.py
+        run: python parse.py
+
+      # adjust path to whatever image your script outputs
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-image
+          path: tt_shuttles.png
+          if-no-files-found: error
+
+      - name: Add image to job summary
+        run: |
+          echo "## Daily Shuttle Stats" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "![Generated](tt_shuttles.png)" >> $GITHUB_STEP_SUMMARY
+
