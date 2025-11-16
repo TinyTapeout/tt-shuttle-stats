@@ -42,5 +42,5 @@ jobs:
         run: |
           echo "## Daily Shuttle Stats" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "![Generated](tt_shuttles.png)" >> $GITHUB_STEP_SUMMARY
+          echo "![Generated](data:image/png;base64,$(base64 -w 0 tt_shuttles.png))" >> $GITHUB_STEP_SUMMARY
 
