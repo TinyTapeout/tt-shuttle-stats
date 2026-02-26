@@ -30,25 +30,28 @@ jobs:
       - name: Run shuttle_stats.py
         run: python shuttle_stats.py
 
-      - name: Commit updated image
+      - name: Commit updated images
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tt_shuttles.png
-          git diff --cached --quiet || git commit -m "chore: update shuttle stats image"
+          git add tt_projects.png tt_utilisation.png
+          git diff --cached --quiet || git commit -m "chore: update shuttle stats images"
           git push
 
-      # adjust path to whatever image your script outputs
-      - name: Upload image artifact
+      - name: Upload image artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: result-image
-          path: tt_shuttles.png
+          name: result-images
+          path: |
+            tt_projects.png
+            tt_utilisation.png
           if-no-files-found: error
 
       - name: Add image to job summary
         run: |
           echo "## Daily Shuttle Stats" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "![Generated](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_shuttles.png)" >> $GITHUB_STEP_SUMMARY
+          echo "![Projects](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_projects.png)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "![Utilisation](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_utilisation.png)" >> $GITHUB_STEP_SUMMARY
 

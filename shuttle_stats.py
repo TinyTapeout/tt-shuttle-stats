@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 # Don't show these ones
 skip_shuttles = [
-    "Tiny Tapeout 4", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a",
+    "Tiny Tapeout 4", "Tiny Tapeout 5", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a",
     "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3",
     "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a", "Tiny Tapeout GF 0p2"
 ]
@@ -34,6 +34,7 @@ if args.dump:
 shuttles = data['shuttles']
 id_to_name = {item["id"]: item["name"] for item in shuttles}
 shuttle_deadlines = {item["id"]: pd.to_datetime(item["deadline"]) for item in shuttles}
+shuttle_tiles_total = {item["id"]: item["tiles_total"] for item in shuttles}
 
 # Current UTC time
 now_utc = pd.Timestamp(datetime.now(timezone.utc))
@@ -56,7 +57,7 @@ print(f"Highlighting shuttle: {id_to_name[closest_shuttle_id]}, Deadline: {close
 days_to_deadline = (closest_deadline - now_utc).total_seconds() / (24*3600)
 log_x = (days_to_deadline <= 7) or args.log
 
-print(f"Log mode: {log_x} (days to closest deadline: {days_to_deadline:.2f})")
+print(f"Log mode: {log_x} ({days_to_deadline:.2f} days to closest deadline)")
 
 # Load submissions into a DataFrame
 df = pd.DataFrame(data['submissions'])
@@ -78,11 +79,15 @@ df.sort_values(by=['shuttle_id', 'days_before_close'], ascending=[True, False], 
 # Calculate cumulative number of projects per shuttle
 df['cumulative_projects'] = df.groupby('shuttle_id').cumcount() + 1
 
+# Calculate cumulative tile utilisation as a percentage
+df['cumulative_tiles'] = df.groupby('shuttle_id')['tile_count'].cumsum()
+df['tile_utilisation_pct'] = 100 * df['cumulative_tiles'] / df['shuttle_id'].map(shuttle_tiles_total)
+
 # Choose x-axis column based on log_x
 x_col = 'hours_before_close' if log_x else 'days_before_close'
 xlabel = 'Hours Before Tapeout' if log_x else 'Days Before Tapeout'
 
-# Plot the graph
+# Plot the projects graph
 plt.figure(figsize=(10, 6))
 for shuttle_id, group in df.groupby('shuttle_id'):
     shuttle_name = id_to_name.get(shuttle_id, f"Shuttle {shuttle_id}")
@@ -111,10 +116,37 @@ if log_x:
 update_date = datetime.now().strftime("%d %B")
 plt.xlabel(xlabel)
 plt.ylabel('Number of Projects')
-plt.title(f'Tiny Tapeout shuttle utilisation - updated {update_date}')
+plt.title(f'Tiny Tapeout projects submitted over time - updated {update_date}')
 plt.legend(loc="upper left")
 plt.grid(True)
-plt.savefig("tt_shuttles.png")
+plt.savefig("tt_projects.png")
+
+# Plot tile utilisation graph
+plt.figure(figsize=(10, 6))
+for shuttle_id, group in df.groupby('shuttle_id'):
+    shuttle_name = id_to_name.get(shuttle_id, f"Shuttle {shuttle_id}")
+    if shuttle_name in skip_shuttles:
+        continue
+
+    alpha = 1 if shuttle_id == closest_shuttle_id else 0.35
+
+    plt.plot(
+        group[x_col].values,
+        group['tile_utilisation_pct'].values,
+        label=shuttle_name,
+        alpha=alpha
+    )
+
+plt.gca().invert_xaxis()
+if log_x:
+    plt.xscale('log')
+
+plt.xlabel(xlabel)
+plt.ylabel('Tile Utilisation (%)')
+plt.title(f'Tiny Tapeout tile utilisation - updated {update_date}')
+plt.legend(loc="upper left")
+plt.grid(True)
+plt.savefig("tt_utilisation.png")
 
 if args.show:
     plt.show()

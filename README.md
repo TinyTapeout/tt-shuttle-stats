@@ -1,5 +1,7 @@
 # Shuttle stats for TT04 and beyond
 
-![stats](tt_shuttles.png)
+![projects](tt_projects.png)
 
-Parses data from https://app.tinytapeout.com/api/shuttles/submission-stats to show utilisation over time of the most recent Tiny Tapeout shuttles.
+![utilisation](tt_utilisation.png)
+
+Parses data from https://app.tinytapeout.com/api/shuttles/submission-stats to show the number of projects submitted and tile utilisation over time for the most recent Tiny Tapeout shuttles.
