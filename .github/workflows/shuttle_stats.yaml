@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tt_projects.png tt_utilisation.png
+          git add tt_projects.png tt_utilisation.png tt_projects_per_year.png
           git diff --cached --quiet || git commit -m "chore: update shuttle stats images"
           git push
 
@@ -45,6 +45,7 @@ jobs:
           path: |
             tt_projects.png
             tt_utilisation.png
+            tt_projects_per_year.png
           if-no-files-found: error
 
       - name: Add image to job summary
@@ -54,4 +55,6 @@ jobs:
           echo "![Projects](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_projects.png)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "![Utilisation](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_utilisation.png)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "![Projects per year](https://raw.githubusercontent.com/TinyTapeout/tt-shuttle-stats/main/tt_projects_per_year.png)" >> $GITHUB_STEP_SUMMARY
 

@@ -1,6 +1,7 @@
 import requests
 import argparse
 import json
+import numpy as np
 import pandas as pd
 from datetime import datetime, timezone
 import matplotlib.pyplot as plt
@@ -148,5 +149,93 @@ plt.legend(loc="upper left")
 plt.grid(True)
 plt.savefig("tt_utilisation.png")
 
-if args.show:
-    plt.show()
+# Plot total projects per year (all shuttles)
+shuttle_year = {item["id"]: pd.to_datetime(item["deadline"]).year for item in shuttles}
+projects_per_shuttle = df.groupby('shuttle_id')['cumulative_projects'].max()
+year_totals = {}
+for shuttle_id, count in projects_per_shuttle.items():
+    year = shuttle_year.get(shuttle_id)
+    if year:
+        year_totals[year] = year_totals.get(year, 0) + count
+
+# TT brand colours
+tt_blue      = '#040371'
+tt_hot_pink  = '#f82381'
+tt_cyan      = '#3dfef7'
+tt_yellow    = '#fef244'
+
+# Average projects per completed production shuttle (exclude experimental 0p slugs)
+slug_map = {item["id"]: item["slug"] for item in shuttles}
+past_shuttle_ids = {item["id"] for item in shuttles if pd.to_datetime(item["deadline"]) < now_utc}
+production_past_ids = {sid for sid in past_shuttle_ids if '0p' not in slug_map.get(sid, '')}
+production_projects = [cnt for sid, cnt in projects_per_shuttle.items() if sid in production_past_ids]
+avg_per_shuttle = sum(production_projects) / len(production_projects) if production_projects else 0
+print(f"Avg projects per production shuttle: {avg_per_shuttle:.1f} (over {len(production_projects)} shuttles)")
+
+# 2026: actual from data + 5 more shuttles estimated
+actual_2026 = year_totals.get(2026, 0)
+estimated_2026_extra = 5 * avg_per_shuttle
+
+# Shuttle counts per year
+shuttles_per_year_actual = {}
+for sid, yr in shuttle_year.items():
+    shuttles_per_year_actual[yr] = shuttles_per_year_actual.get(yr, 0) + 1
+shuttles_in_2026 = shuttles_per_year_actual.get(2026, 0)
+total_2026_shuttles = shuttles_in_2026 + 5
+
+# Extrapolate 2027 shuttle count using quadratic fit (normalize years to avoid float instability)
+fit_years = sorted(shuttles_per_year_actual.keys())
+fit_counts = [total_2026_shuttles if y == 2026 else shuttles_per_year_actual[y] for y in fit_years]
+base_year = fit_years[0]
+fit_years_norm = [y - base_year for y in fit_years]
+coeffs = np.polyfit(fit_years_norm, fit_counts, 2)
+estimated_2027_shuttles = max(total_2026_shuttles, int(round(np.polyval(coeffs, 2027 - base_year))))
+estimated_2027 = estimated_2027_shuttles * avg_per_shuttle
+print(f"2026 shuttles in data: {shuttles_in_2026}, total projected: {total_2026_shuttles}")
+print(f"2027 shuttles extrapolated: {estimated_2027_shuttles}")
+print(f"Estimated 2026 extra: {estimated_2026_extra:.0f}, Estimated 2027 total: {estimated_2027:.0f}")
+
+past_years = sorted(y for y in year_totals if y < 2026)
+
+# Shuttle line: actual through 2026, then dashed to 2027 — share 2026 point so no gap
+line_actual_x = [str(y) for y in past_years] + ['2026']
+line_actual_y = [shuttles_per_year_actual.get(y, 0) for y in past_years] + [total_2026_shuttles]
+line_est_x = ['2026', '2027']
+line_est_y = [total_2026_shuttles, estimated_2027_shuttles]
+
+def make_chart(filename, bar_actual_color, bar_est_color):
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+
+    ax1.bar([str(y) for y in past_years], [year_totals[y] for y in past_years],
+            color=bar_actual_color, label='Projects (actual)')
+    ax1.bar('2026', actual_2026, color=bar_actual_color)
+    ax1.bar('2026', estimated_2026_extra, bottom=actual_2026,
+            color=bar_est_color, label='Projects (estimated)')
+    ax1.bar('2027', estimated_2027, color=bar_est_color)
+    ax1.set_xlabel('Year')
+    ax1.set_ylabel('Number of Projects')
+
+    ax2 = ax1.twinx()
+    ax2.plot(line_actual_x, line_actual_y,
+             color='black', marker='o', linewidth=2.5, markersize=7,
+             label='Shuttles (actual)')
+    ax2.plot(line_est_x, line_est_y,
+             color='black', marker='o', linewidth=2.5, markersize=7,
+             linestyle='dashed', label='Shuttles (estimated)')
+    ax2.set_ylabel('Number of Shuttles')
+    ax2.set_ylim(bottom=0)
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left', handlelength=3)
+
+    plt.title(f'Tiny Tapeout total projects taped out per year - updated {update_date}')
+    ax1.grid(True, axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(filename)
+    if args.show:
+        plt.show()
+    plt.close()
+
+make_chart("tt_projects_per_year.png", '#8486b8', '#888888')
