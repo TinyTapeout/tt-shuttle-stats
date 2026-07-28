@@ -15,9 +15,12 @@ args = parser.parse_args()
 
 # Don't show these ones
 skip_shuttles = [
-    "Tiny Tapeout 4", "Tiny Tapeout 5", "Tiny Tapeout 10", "Tiny Tapeout CAD 25a",
-    "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3",
-    "Tiny Tapeout IHP 25a", "Tiny Tapeout Sky 25a", "Tiny Tapeout GF 0p2"
+    "Tiny Tapeout 4", "Tiny Tapeout 5", "Tiny Tapeout 6", "Tiny Tapeout 7", "Tiny Tapeout 8", "Tiny Tapeout 9", "Tiny Tapeout 10",
+    "Tiny Tapeout CAD 25a",
+    "Tiny Tapeout IHP 0p2", "Tiny Tapeout IHP 0p3", "Tiny Tapeout IHP 0p4",
+    "Tiny Tapeout IHP 25a", "Tiny Tapeout IHP 25b",
+    "Tiny Tapeout SKY 25a", "Tiny Tapeout SKY 25b",
+    "Tiny Tapeout GF 0p2", "Tiny Tapeout GF 0p3",
 ]
 
 # Fetch JSON data from the API
