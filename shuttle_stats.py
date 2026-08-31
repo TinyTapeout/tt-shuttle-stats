@@ -175,16 +175,17 @@ production_projects = [cnt for sid, cnt in projects_per_shuttle.items() if sid i
 avg_per_shuttle = sum(production_projects) / len(production_projects) if production_projects else 0
 print(f"Avg projects per production shuttle: {avg_per_shuttle:.1f} (over {len(production_projects)} shuttles)")
 
-# 2026: actual from data + 5 more shuttles estimated
+# 2026: actual from data + remaining shuttles estimated
+remaining_2026_shuttles = 4
 actual_2026 = year_totals.get(2026, 0)
-estimated_2026_extra = 5 * avg_per_shuttle
+estimated_2026_extra = remaining_2026_shuttles * avg_per_shuttle
 
 # Shuttle counts per year
 shuttles_per_year_actual = {}
 for sid, yr in shuttle_year.items():
     shuttles_per_year_actual[yr] = shuttles_per_year_actual.get(yr, 0) + 1
 shuttles_in_2026 = shuttles_per_year_actual.get(2026, 0)
-total_2026_shuttles = shuttles_in_2026 + 5
+total_2026_shuttles = shuttles_in_2026 + remaining_2026_shuttles
 
 # Extrapolate 2027 shuttle count using quadratic fit (normalize years to avoid float instability)
 fit_years = sorted(shuttles_per_year_actual.keys())
