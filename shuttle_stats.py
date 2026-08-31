@@ -218,7 +218,7 @@ def make_chart(filename, bar_actual_color, bar_est_color):
             color=bar_est_color, label='Projects (estimated)')
     ax1.bar('2027', estimated_2027, color=bar_est_color)
     ax1.set_xlabel('Year')
-    ax1.set_ylabel('Number of Projects')
+    ax1.set_ylabel('Number of Projects per Year')
 
     ax2 = ax1.twinx()
     ax2.plot(line_actual_x, line_actual_y,
