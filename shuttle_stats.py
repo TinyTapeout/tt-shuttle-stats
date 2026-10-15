@@ -175,17 +175,29 @@ production_projects = [cnt for sid, cnt in projects_per_shuttle.items() if sid i
 avg_per_shuttle = sum(production_projects) / len(production_projects) if production_projects else 0
 print(f"Avg projects per production shuttle: {avg_per_shuttle:.1f} (over {len(production_projects)} shuttles)")
 
-# 2026: actual from data + remaining shuttles estimated
-remaining_2026_shuttles = 4
-actual_2026 = year_totals.get(2026, 0)
-estimated_2026_extra = remaining_2026_shuttles * avg_per_shuttle
+# GF shuttles are much smaller, so average them separately
+gf_slugs_extra = {'ttboat26'}  # GF chips without a ttgf slug
+def is_gf(sid):
+    slug = slug_map.get(sid, '')
+    return slug.startswith('ttgf') or slug in gf_slugs_extra
+def family_avg(gf):
+    counts = [cnt for sid, cnt in projects_per_shuttle.items() if sid in production_past_ids and is_gf(sid) == gf]
+    return sum(counts) / len(counts) if counts else avg_per_shuttle
+avg_gf = family_avg(True)
+avg_non_gf = family_avg(False)
+print(f"Avg projects per GF shuttle: {avg_gf:.1f}, per non-GF shuttle: {avg_non_gf:.1f}")
 
-# Shuttle counts per year
+# 2026: actual from data + top up future 2026 shuttles (already in the data) to the average
+actual_2026 = year_totals.get(2026, 0)
+future_2026_ids = [sid for sid, yr in shuttle_year.items() if yr == 2026 and sid not in past_shuttle_ids]
+estimated_2026_extra = sum(max(0, (avg_gf if is_gf(sid) else avg_non_gf) - projects_per_shuttle.get(sid, 0)) for sid in future_2026_ids)
+
+# Shuttle counts per year (future shuttles are already listed in the data)
 shuttles_per_year_actual = {}
 for sid, yr in shuttle_year.items():
     shuttles_per_year_actual[yr] = shuttles_per_year_actual.get(yr, 0) + 1
 shuttles_in_2026 = shuttles_per_year_actual.get(2026, 0)
-total_2026_shuttles = shuttles_in_2026 + remaining_2026_shuttles
+total_2026_shuttles = shuttles_in_2026
 
 # Extrapolate 2027 shuttle count using quadratic fit (normalize years to avoid float instability)
 fit_years = sorted(shuttles_per_year_actual.keys())
@@ -194,7 +206,10 @@ base_year = fit_years[0]
 fit_years_norm = [y - base_year for y in fit_years]
 coeffs = np.polyfit(fit_years_norm, fit_counts, 2)
 estimated_2027_shuttles = max(total_2026_shuttles, int(round(np.polyval(coeffs, 2027 - base_year))))
-estimated_2027 = estimated_2027_shuttles * avg_per_shuttle
+# Assume 2027 has the same shuttle mix (GF / non-GF / experimental) as 2026
+avg_per_shuttle_2026 = (actual_2026 + estimated_2026_extra) / total_2026_shuttles
+estimated_2027 = estimated_2027_shuttles * avg_per_shuttle_2026
+print(f"2026 avg projects per shuttle: {avg_per_shuttle_2026:.1f}")
 print(f"2026 shuttles in data: {shuttles_in_2026}, total projected: {total_2026_shuttles}")
 print(f"2027 shuttles extrapolated: {estimated_2027_shuttles}")
 print(f"Estimated 2026 extra: {estimated_2026_extra:.0f}, Estimated 2027 total: {estimated_2027:.0f}")
